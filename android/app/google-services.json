@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "287989378369",
+    "project_id": "test1pfa-9886e",
+    "storage_bucket": "test1pfa-9886e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287989378369:android:621c7782b00a2141a485c0",
+        "android_client_info": {
+          "package_name": "com.example.rappel_priere2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0c9Yn8byTkRnVD5gcPCExqpJWml8FdQk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
