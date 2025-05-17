@@ -3,7 +3,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzData;
 
 class NotificationService {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+static  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
@@ -12,7 +12,8 @@ class NotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
       android: initializationSettingsAndroid,
     );
 
@@ -28,7 +29,8 @@ class NotificationService {
       enableVibration: true,
     );
 
-    const AndroidNotificationChannel scheduledChannel = AndroidNotificationChannel(
+    const AndroidNotificationChannel scheduledChannel =
+        AndroidNotificationChannel(
       'scheduled_channel',
       'Scheduled Channel',
       description: 'Channel for scheduled prayer reminders',
@@ -51,19 +53,21 @@ class NotificationService {
     final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
         flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
-            
+
     if (androidImplementation != null) {
-      final bool? granted = await androidImplementation.requestNotificationsPermission();
+      final bool? granted =
+          await androidImplementation.requestNotificationsPermission();
       print('Notification permission granted: $granted');
     }
   }
 
-  Future<void> showNotification({
+ static Future<void> showNotification({
     required int id,
     required String title,
     required String body,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
       'main_channel',
       'Main Channel',
       channelDescription: 'Channel for prayer reminders',
@@ -89,12 +93,20 @@ class NotificationService {
     required String body,
     required DateTime scheduledTime,
   }) async {
-    print('Scheduling notification for $title at $scheduledTime');
+    final tzScheduledDate = tz.TZDateTime.from(scheduledTime, tz.local);
+
+    if (tzScheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
+      print('⛔ La date de notification est dans le passé : $tzScheduledDate');
+      return; // ou planifie pour le jour suivant si besoin
+    }
+
+    print('✅ Scheduling notification for $title at $tzScheduledDate');
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
       body,
-      tz.TZDateTime.from(scheduledTime, tz.local),
+      tzScheduledDate,
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'scheduled_channel',
@@ -104,8 +116,10 @@ class NotificationService {
           priority: Priority.high,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time,
     );
-    print('Notification scheduled successfully.');
+
+    print('✅ Notification scheduled successfully.');
   }
 }

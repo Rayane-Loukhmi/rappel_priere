@@ -8,7 +8,6 @@ import '../services/notification_service.dart';
 import '../services/prayer_tracker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class PrayerTimesPage extends StatefulWidget {
   const PrayerTimesPage({super.key});
 
@@ -23,7 +22,8 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
   String errorMessage = '';
   String location = '';
   String hijriDate = '';
-  List<bool> selectedDays = List.filled(7, true); // Tous les jours sélectionnés par défaut
+  List<bool> selectedDays =
+      List.filled(7, true); // Tous les jours sélectionnés par défaut
 
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now().toString().split(' ')[0];
     final saved = prefs.getString('completed_prayers_$today');
-    
+
     if (saved != null) {
       setState(() {
         completedPrayers = Map<String, bool>.from(jsonDecode(saved));
@@ -57,7 +57,8 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
   Future<void> _saveCompletedPrayers() async {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now().toString().split(' ')[0];
-    await prefs.setString('completed_prayers_$today', jsonEncode(completedPrayers));
+    await prefs.setString(
+        'completed_prayers_$today', jsonEncode(completedPrayers));
   }
 
   Future<void> _markPrayerAsCompleted(String prayerName) async {
@@ -66,11 +67,11 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
         completedPrayers[prayerName] = true;
       });
       await _saveCompletedPrayers();
-      
+
       // Update Firebase stats
       final tracker = Provider.of<PrayerTracker>(context, listen: false);
       await tracker.incrementTotalPrayers();
-      
+
       // Check if all prayers are completed for the day
       if (completedPrayers.values.every((completed) => completed)) {
         final currentStreak = tracker.getCurrentStreak();
@@ -82,7 +83,7 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
   Future<void> _fetchPrayerTimes() async {
     try {
       print('Début de la récupération des temps de prière');
-      
+
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         print('Service de localisation désactivé');
@@ -111,7 +112,7 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
       print('Récupération de la position');
       Position position = await Geolocator.getCurrentPosition();
       final date = DateFormat('dd-MM-yyyy').format(DateTime.now());
-      
+
       print('Position: ${position.latitude}, ${position.longitude}');
       print('Date: $date');
 
@@ -148,8 +149,10 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
 
       setState(() {
         prayerTimes = newPrayerTimes;
-        location = data['data']['meta']?['timezone']?.toString() ?? 'Timezone inconnue';
-        hijriDate = '${data['data']['date']?['hijri']?['day'] ?? '?'} ${data['data']['date']?['hijri']?['month']?['en'] ?? '?'} ${data['data']['date']?['hijri']?['year'] ?? '?'}';
+        location = data['data']['meta']?['timezone']?.toString() ??
+            'Timezone inconnue';
+        hijriDate =
+            '${data['data']['date']?['hijri']?['day'] ?? '?'} ${data['data']['date']?['hijri']?['month']?['en'] ?? '?'} ${data['data']['date']?['hijri']?['year'] ?? '?'}';
         isLoading = false;
       });
 
@@ -171,21 +174,17 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
 
   void _schedulePrayerNotifications() {
     if (!mounted) return;
-    
+
     try {
-      final notificationService = Provider.of<NotificationService>(context, listen: false);
+      final notificationService =
+          Provider.of<NotificationService>(context, listen: false);
       final now = DateTime.now();
 
       prayerTimes.forEach((prayerName, prayerTimeStr) {
         try {
           final prayerTime = DateFormat('HH:mm').parse(prayerTimeStr);
           final prayerDateTime = DateTime(
-            now.year, 
-            now.month, 
-            now.day, 
-            prayerTime.hour, 
-            prayerTime.minute
-          );
+              now.year, now.month, now.day, prayerTime.hour, prayerTime.minute);
 
           // Planifier pour chaque jour sélectionné
           for (int i = 0; i < selectedDays.length; i++) {
@@ -209,7 +208,8 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
   }
 
   DateTime _getNextWeekday(int weekday, DateTime baseTime) {
-    var nextDate = baseTime.add(Duration(days: (weekday - baseTime.weekday) % 7));
+    var nextDate =
+        baseTime.add(Duration(days: (weekday - baseTime.weekday) % 7));
     if (nextDate.isBefore(baseTime)) {
       nextDate = nextDate.add(const Duration(days: 7));
     }
@@ -218,7 +218,7 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
 
   Widget _buildPrayerTimeCard(String prayerName, String time) {
     final isCompleted = completedPrayers[prayerName] ?? false;
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
@@ -273,7 +273,8 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  DateFormat('dd MMMM yyyy').format(DateTime.now()),
+                                  DateFormat('dd MMMM yyyy')
+                                      .format(DateTime.now()),
                                   style: const TextStyle(
                                       fontSize: 16, color: Colors.black87),
                                 ),
@@ -293,16 +294,29 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
                           ),
                           Expanded(
                             child: ListView(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               children: prayerTimes.entries.map((entry) {
-                                return _buildPrayerTimeCard(entry.key, entry.value);
+                                return _buildPrayerTimeCard(
+                                    entry.key, entry.value);
                               }).toList(),
                             ),
                           ),
                           // Bouton pour gérer les rappels
                           Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: ElevatedButton(
+                                child: Text("Test notification"),
+                                onPressed: () async {
+                                  await NotificationService.showNotification(
+                                      body: "Test",
+                                      id: 1,
+                                      title: "Notification");
+                                },
+                              )),
+                          // Bouton pour gérer les rappels
+                          Padding(
                             padding: const EdgeInsets.all(16.0),
-                            
                           ),
                         ],
                       ),
@@ -311,6 +325,4 @@ class _PrayerTimesPageState extends State<PrayerTimesPage> {
                 ),
     );
   }
-
-  
 }

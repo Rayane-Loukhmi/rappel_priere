@@ -33,7 +33,7 @@ class _ReminderSettingsPageState extends State<ReminderSettingsPage> {
     final tracker = Provider.of<PrayerTracker>(context, listen: false);
 
     for (var prayer in prayers) {
-      List<bool> savedDays = await tracker.getReminderDays(prayer);
+      List<bool> savedDays = tracker.getReminderDays(prayer);
       setState(() {
         remindersPerPrayer[prayer] = savedDays.isNotEmpty ? savedDays : List.filled(7, false);
       });
@@ -102,7 +102,7 @@ class _ReminderSettingsPageState extends State<ReminderSettingsPage> {
         ),
       );
     } finally {
-      Navigator.pop(context);
+      // Navigator.pop(context);
     }
   }
 
